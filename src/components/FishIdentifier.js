@@ -5,13 +5,17 @@ import * as tmImage from '@teachablemachine/image';
 const FishIdentifier = () => {
   // Состояния
   const [imagePreview, setImagePreview] = useState(null);
-  const [prediction, setPrediction] = useState(null); // Теперь только один результат
+  const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [model, setModel] = useState(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [hasCamera, setHasCamera] = useState(false);
   
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   // Словарь для перевода названий рыб с английского на русский
   const fishNames = {
@@ -22,79 +26,175 @@ const FishIdentifier = () => {
     'unknown': 'неизвестная рыба'
   };
 
+   // Проверка доступности камеры при загрузке
+  useEffect(() => {
+    loadModel();
+    checkCameraAvailability();
+    
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
+  // Проверяем, есть ли камера у устройства
+  const checkCameraAvailability = () => {
+    const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    setHasCamera(hasMediaDevices);
+  };
+
   // Функция для перевода названия
   const translateFishName = (englishName) => {
-    // Приводим к нижнему регистру и убираем лишние пробелы
     const lowerName = englishName.toLowerCase().trim();
     
-    // Пробуем найти точное совпадение
     if (fishNames[lowerName]) {
       return fishNames[lowerName];
     }
     
-    // Пробуем найти частичное совпадение (если название состоит из нескольких слов)
     for (const [key, value] of Object.entries(fishNames)) {
       if (lowerName.includes(key.toLowerCase()) || key.toLowerCase().includes(lowerName)) {
         return value;
       }
     }
     
-    // Если не нашли - возвращаем оригинал
-    console.log('Не найден перевод для:', englishName);
-    console.log('Доступные ключи:', Object.keys(fishNames));
     return englishName;
   };
 
-  // Загрузка модели при старте
-  useEffect(() => {
-    loadModel();
-  }, []);
-
-  // Функция загрузки модели Teachable Machine
+  // Загрузка модели
   const loadModel = async () => {
     try {
       setLoading(true);
-      // Пути к файлам модели (должны быть в public/model/)
       const modelURL = process.env.PUBLIC_URL + '/model/model.json';
       const metadataURL = process.env.PUBLIC_URL + '/model/metadata.json';
-      
-      console.log('Загружаю модель с:', modelURL);
       
       const loadedModel = await tmImage.load(modelURL, metadataURL);
       setModel(loadedModel);
       setIsModelLoaded(true);
-      console.log('Модель загружена успешно!');
       setError('');
     } catch (error) {
       console.error('Ошибка загрузки модели:', error);
-      setError('Не удалось загрузить модель. Проверьте файлы в папке public/model/');
+      setError('Не удалось загрузить модель. Проверьте файлы модели.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Анализ изображения с помощью модели
+  // Остановка камеры
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setCameraActive(false);
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  // Запуск камеры
+  const startCamera = async () => {
+    try {
+      if (!hasCamera) {
+        setError('Камера не поддерживается вашим устройством');
+        return false;
+      }
+      
+      setError('');
+      stopCamera();
+      
+      const constraints = {
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      };
+      
+      // На компьютере используем обычную камеру
+      if (!/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+        constraints.video.facingMode = 'user';
+      }
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        setCameraActive(true);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Ошибка камеры:', error);
+      
+      let errorMessage = 'Не удалось запустить камеру. ';
+      if (error.name === 'NotAllowedError') {
+        errorMessage += 'Разрешите доступ к камере в настройках браузера.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage += 'Камера не найдена.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage += 'Камера уже используется другим приложением.';
+      } else {
+        errorMessage += error.message;
+      }
+      
+      setError(errorMessage);
+      return false;
+    }
+  };
+
+  // Сделать фото
+  const takePhoto = () => {
+    if (!videoRef.current || !cameraActive) {
+      setError('Камера не активна');
+      return;
+    }
+    
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const photoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      
+      stopCamera();
+      setImagePreview(photoDataUrl);
+      analyzeImage(photoDataUrl);
+      
+    } catch (error) {
+      console.error('Ошибка при создании фото:', error);
+      setError('Не удалось сделать фото');
+    }
+  };
+
+  // Анализ изображения
   const analyzeImage = async (imageSrc) => {
     if (!model) {
       setError('Модель не загружена');
       return null;
     }
     
+    setLoading(true);
+    setPrediction(null);
+    
     try {
-      // Создаем изображение
       const img = new Image();
       img.src = imageSrc;
       
-      // Ждем загрузки
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;
       });
       
-      // Делаем предсказание
       const predictions = await model.predict(img);
       
-      // Берем самый вероятный результат
       const topPrediction = predictions.reduce((prev, current) => 
         (prev.probability > current.probability) ? prev : current
       );
@@ -102,16 +202,21 @@ const FishIdentifier = () => {
       const probability = (topPrediction.probability * 100).toFixed(2);
       const translatedName = translateFishName(topPrediction.className);
       
-      return {
+      const result = {
         className: topPrediction.className,
         translatedName: translatedName,
         probability: probability
       };
       
+      setPrediction(result);
+      return result;
+      
     } catch (error) {
       console.error('Ошибка анализа:', error);
       setError('Ошибка при анализе изображения');
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,37 +231,44 @@ const FishIdentifier = () => {
     }
     
     if (!isModelLoaded) {
-      setError('Модель еще загружается. Подождите...');
+      setError('Модель еще загружается');
       return;
     }
     
     setError('');
-    setPrediction(null); // Сбрасываем предыдущий результат
+    stopCamera();
     
     const reader = new FileReader();
     reader.onload = async (e) => {
       setImagePreview(e.target.result);
-      setLoading(true);
-      
-      try {
-        const result = await analyzeImage(e.target.result);
-        setPrediction(result);
-        
-        if (!result) {
-          setError('Не удалось проанализировать изображение');
-        }
-      } catch (err) {
-        console.error('Ошибка:', err);
-        setError('Ошибка при анализе изображения');
-      } finally {
-        setLoading(false);
-      }
+      await analyzeImage(e.target.result);
     };
     reader.readAsDataURL(file);
   };
 
+  // Обработчик кнопки камеры
+  const handleCameraClick = async () => {
+    if (!isModelLoaded) {
+      setError('Модель еще загружается');
+      return;
+    }
+    
+    setError('');
+    setImagePreview(null);
+    setPrediction(null);
+    
+    const success = await startCamera();
+    if (!success && hasCamera) {
+      // Если камера есть, но не запустилась — предлагаем загрузить файл
+      setTimeout(() => {
+        setError('Не удалось запустить камеру. Попробуйте загрузить фото файлом.');
+      }, 500);
+    }
+  };
+
   // Сброс
   const handleReset = () => {
+    stopCamera();
     setImagePreview(null);
     setPrediction(null);
     setError('');
@@ -175,6 +287,7 @@ const FishIdentifier = () => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
+      stopCamera();
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
       fileInputRef.current.files = dataTransfer.files;
@@ -182,29 +295,29 @@ const FishIdentifier = () => {
     }
   };
 
-  // Функция для отображения результата
+  // Рендер результата
   const renderResult = () => {
     if (!prediction) return null;
     
     const { className, translatedName, probability } = prediction;
     const confidence = parseFloat(probability);
     
-    // Если это unknown или уверенность низкая
     if (className.toLowerCase() === 'unknown' || confidence < 50) {
       return (
         <div className="unknown-result">
-          <h2>Сомневаюсь, что на картинке знакомая мне рыба...</h2>
+          <div className="unknown-icon">🤔</div>
+          <h2>Сомневаюсь, что на картинке знакомая мне рыба</h2>
           <p className="unknown-text">
-            Точность: <span className="probability-low">{probability}%</span>
+            Вероятность: <span className="probability-low">{probability}%</span>
           </p>
-          <p className="suggestion">Попробуйте другую картинку, где рыбу видно более четко</p>
+          <p className="suggestion">Попробуйте другую картинку</p>
         </div>
       );
     }
     
-    // Нормальный результат
     return (
       <div className="result-card">
+        <div className="result-icon">🎯</div>
         <h2 className="result-title">
           На картинке <span className="fish-name">{translatedName}</span>
         </h2>
@@ -236,13 +349,12 @@ const FishIdentifier = () => {
 
   return (
     <div className="fish-identifier">
-      {/* Индикатор загрузки модели */}
+      {/* Загрузка модели */}
       {!isModelLoaded && (
         <div className="model-loading">
           <div className="spinner"></div>
-          <h3>Загружаею модель идентификации рыб...</h3>
+          <h3>Загружаем модель идентификации...</h3>
           <p>Это займет несколько секунд</p>
-          {error && <p className="error-text">{error}</p>}
         </div>
       )}
 
@@ -250,25 +362,57 @@ const FishIdentifier = () => {
       <div className="upload-section" style={{ 
         display: !isModelLoaded ? 'none' : 'block' 
       }}>
-        <div 
-          className="upload-area"
-          onClick={() => fileInputRef.current?.click()}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          {imagePreview ? (
-            <div className="image-container">
-              <img src={imagePreview} alt="Предпросмотр" className="preview-image" />
+        {/* Камера */}
+        {cameraActive ? (
+          <div className="camera-preview">
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              playsInline 
+              muted
+              className="camera-video"
+            />
+            <div className="camera-controls">
+              <button 
+                onClick={takePhoto}
+                className="btn capture-btn"
+              >
+                📸 Сделать фото
+              </button>
+              <button 
+                onClick={stopCamera}
+                className="btn cancel-btn"
+              >
+                ✖ Отмена
+              </button>
             </div>
-          ) : (
-            <div className="upload-placeholder">
-              <div className="upload-icon">🐟</div>
-              <h3>Загрузите фото рыбы</h3>
-              <p>Перетащите сюда или нажмите для выбора</p>
-              <p className="formats">JPG, PNG, WebP</p>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          /* Область загрузки */
+          <div 
+            className="upload-area"
+            onClick={() => !cameraActive && fileInputRef.current?.click()}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            {imagePreview ? (
+              <div className="image-container">
+                <img src={imagePreview} alt="Предпросмотр" className="preview-image" />
+              </div>
+            ) : (
+              <div className="upload-placeholder">
+                <div className="upload-icon">🐟</div>
+                <h3>Идентификатор рыб</h3>
+                <p>Загрузите фото или сделайте снимок</p>
+                {!hasCamera && (
+                  <p className="no-camera-warning">
+                    ⚠️ Камера не обнаружена. Используйте загрузку файла.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         
         <input
           type="file"
@@ -280,76 +424,84 @@ const FishIdentifier = () => {
         
         {error && <div className="error-message">{error}</div>}
         
+        {/* Кнопки управления */}
         <div className="controls">
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="btn primary"
-            disabled={loading}
-          >
-            Загрузить фото
-          </button>
+          {!cameraActive && (
+            <>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="btn primary"
+                disabled={loading}
+              >
+                📁 Выбрать фото
+              </button>
+              
+              {hasCamera && (
+                <button 
+                  onClick={handleCameraClick}
+                  className="btn camera-btn"
+                  disabled={loading}
+                >
+                  📷 Сделать фото
+                </button>
+              )}
+            </>
+          )}
+          
           <button 
             onClick={handleReset}
             className="btn secondary"
-            disabled={!imagePreview || loading}
+            disabled={(!imagePreview && !cameraActive) || loading}
           >
-            Сбросить
+            {cameraActive ? '✖ Отмена' : '🗑️ Сбросить'}
           </button>
         </div>
       </div>
 
-      {/* Индикатор анализа */}
+      {/* Индикатор загрузки */}
       {loading && (
         <div className="loading-overlay">
           <div className="spinner"></div>
-          <p className="loading-text">Анализирую изображение...</p>
-          <p className="loading-subtext">Определяю вид рыбы...</p>
+          <p className="loading-text">Анализируем изображение...</p>
+          <p className="loading-subtext">Определяю вид рыбы</p>
         </div>
       )}
 
       {/* Результат */}
-      {prediction && !loading && (
+      {prediction && !loading && !cameraActive && (
         <div className="result-section">
           {renderResult()}
         </div>
       )}
 
       {/* Инструкции */}
-      {!imagePreview && !loading && isModelLoaded && (
+      {!imagePreview && !loading && !cameraActive && isModelLoaded && (
         <div className="instructions">
-          <h3>Как определить рыбу по фото:</h3>
+          <h3>Как определить рыбу:</h3>
           <div className="steps">
+            {hasCamera && (
+              <div className="step">
+                <div className="step-icon">📷</div>
+                <div className="step-content">
+                  <h4>Сфотографируйте</h4>
+                  <p>Наведите камеру на рыбу и сделайте снимок</p>
+                </div>
+              </div>
+            )}
             <div className="step">
-              <div className="step-icon">1</div>
+              <div className="step-icon">📁</div>
               <div className="step-content">
-                <h4>Загрузите фотографию рыбы</h4>
-                <p>Или сфотографируйте*</p>
+                <h4>Загрузите фото</h4>
+                <p>Выберите фото из галереи</p>
               </div>
             </div>
             <div className="step">
-              <div className="step-icon">2</div>
-              <div className="step-content">
-                <h4>Дайте подумать...</h4>
-                <p>Я определю вид за пару секунд!</p>
-              </div>
-            </div>
-            <div className="step">
-              <div className="step-icon">3</div>
+              <div className="step-icon">🤖</div>
               <div className="step-content">
                 <h4>Получите результат</h4>
-                <p>Узнайте название рыбы и точность определения</p>
+                <p>ИИ определит вид за несколько секунд</p>
               </div>
             </div>
-          </div>
-          
-          <div className="tips">
-            <h4>Советы для лучшего результата:</h4>
-            <ul>
-              <li>Фотографируйте рыбу сбоку, чтобы видна была форма тела</li>
-              <li>Убедитесь, что рыба хорошо освещена</li>
-              <li>Старайтесь, чтобы рыба занимала большую часть кадра</li>
-              <li>Избегайте размытых и темных фото</li>
-            </ul>
           </div>
         </div>
       )}
