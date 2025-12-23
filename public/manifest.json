@@ -1,25 +1,71 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Идентификатор рыб",
+  "name": "Идентификатор рыб по фото",
+  "description": "Приложение для определения вида рыб по фотографии с помощью искусственного интеллекта",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "icon-72.png",
+      "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo192.png",
+      "src": "icon-96.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "96x96",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "icon-128.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "128x128",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-144.png",
+      "type": "image/png",
+      "sizes": "144x144",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-152.png",
+      "type": "image/png",
+      "sizes": "152x152",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-384.png",
+      "type": "image/png",
+      "sizes": "384x384",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#4a90e2",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["education", "lifestyle", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Определить рыбу",
+      "short_name": "Сканировать",
+      "description": "Запустить определение рыбы по фото",
+      "url": "/",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+    }
+  ]
 }
