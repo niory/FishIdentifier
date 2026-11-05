@@ -348,3 +348,9 @@
         font-size: 16px !important;
     }
 }
+.camera-controls { padding: 0 12px; flex-wrap: wrap; gap: 6px; }
+.camera-controls .btn { width: auto; max-width: 100%; }
+.result-card details { margin-top: 16px; }
+.result-card summary { cursor: pointer; }
+.prediction-score { margin-top: 8px; }
+.upload-area:focus-visible { outline: 3px solid #1976D2; outline-offset: 3px; }

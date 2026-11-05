@@ -1,0 +1,98 @@
+[
+  {
+    "id": "catfish-wels",
+    "expected": "Catfish",
+    "species": "Silurus glanis",
+    "file": "tests/photos/catfish-wels.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Silurus_glanis_02.jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Silurus_glanis_02.jpg/960px-Silurus_glanis_02.jpg",
+    "author": "Dieter Florian (To contact the author, ask the uploader or take a look at tauchshop-florian.de.)",
+    "license": "CC BY-SA 3.0 de",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+    "sha256": "743cee848fac024e0d3408aa7cf45742a3234d128b3ae69e00cf7e968763205e"
+  },
+  {
+    "id": "catfish-channel",
+    "expected": "Catfish",
+    "species": "Ictalurus punctatus",
+    "file": "tests/photos/catfish-channel.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Channel_Catfish_(Ictalurus_punctatus)_white_background.jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Channel_Catfish_%28Ictalurus_punctatus%29_white_background.jpg/960px-Channel_Catfish_%28Ictalurus_punctatus%29_white_background.jpg",
+    "author": "USFWS Mountain Prairie",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "sha256": "ee6f0d633dedefc1ec9f72d81429e95d8c4bc7d765e4a8610d4d4ed4d001a89e"
+  },
+  {
+    "id": "gourami-three-spot",
+    "expected": "Gourami",
+    "species": "Trichopodus trichopterus",
+    "file": "tests/photos/gourami-three-spot.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Trichogster_trichopterus_13.jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Trichogster_trichopterus_13.jpg/960px-Trichogster_trichopterus_13.jpg",
+    "author": "Gourami Watcher",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "sha256": "8f5584c1407026b9344baf0593abbbec83c7fe3805f9d1c7c0a5f75fb4040171"
+  },
+  {
+    "id": "gourami-pearl",
+    "expected": "Gourami",
+    "species": "Trichopodus leerii",
+    "file": "tests/photos/gourami-pearl.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Trichopodus_leerii_Natural_History_Museum_University_of_Pisa.jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Trichopodus_leerii_Natural_History_Museum_University_of_Pisa.jpg/960px-Trichopodus_leerii_Natural_History_Museum_University_of_Pisa.jpg",
+    "author": "\nMattia Nocciola",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "sha256": "7b84955ec0dfd1c04521b2e6bea72a20441d0f9f6bc776116b9930f29903ebe2"
+  },
+  {
+    "id": "perch-european",
+    "expected": "Perch",
+    "species": "Perca fluviatilis",
+    "file": "tests/photos/perch-european.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Perca_fluviatilis_-_Perche_commune_-_European_perch_(cropped).jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/Perca_fluviatilis_-_Perche_commune_-_European_perch_%28cropped%29.jpg/960px-Perca_fluviatilis_-_Perche_commune_-_European_perch_%28cropped%29.jpg",
+    "author": "Gilles San Martin",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "sha256": "d8ef7ba387dc6a664fb8873dae45d244925bdb79572dee4e2bca2dd3a2830e55"
+  },
+  {
+    "id": "perch-yellow",
+    "expected": "Perch",
+    "species": "Perca flavescens",
+    "file": "tests/photos/perch-yellow.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Yellow_Perch_(Perca_flavescens)_(cropped).jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Yellow_Perch_%28Perca_flavescens%29_%28cropped%29.jpg/960px-Yellow_Perch_%28Perca_flavescens%29_%28cropped%29.jpg",
+    "author": "USFWS Mountain Prairie",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "sha256": "c9ba89a09e07c88b04ae553633f413bf319a94246842430888650d3595bd844c"
+  },
+  {
+    "id": "pike-aquarium",
+    "expected": "northern pike",
+    "species": "Esox lucius",
+    "file": "tests/photos/pike-aquarium.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Esox_lucius_ZOO_1.jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Esox_lucius_ZOO_1.jpg/960px-Esox_lucius_ZOO_1.jpg",
+    "author": "Jik jik",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "sha256": "f535eb1191bdf531a1b87577bc1f3edb430cde6f0d7925f6b9fd8cca3a65267b"
+  },
+  {
+    "id": "pike-river",
+    "expected": "northern pike",
+    "species": "Esox lucius",
+    "file": "tests/photos/pike-river.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Esox_lucius.jpg",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Esox_lucius.jpg/960px-Esox_lucius.jpg",
+    "author": "Spinsta",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "sha256": "506c270014bd7d3430e10451a4c95d6c213e6b41c6df126d9f2c34a2a96cab90"
+  }
+]

@@ -27,7 +27,7 @@ function App() {
     <div className={`app ${isStandalone ? 'standalone' : ''}`}>
       <header className="header">
         <h1>Fish Identifier</h1>
-        <p>Определите вида рыбы по фотографии</p>
+        <p>Определите вид рыбы по фотографии</p>
         {!isStandalone && (
           <div className="pwa-hint">
             ⚡ Установите приложение для быстрого доступа
@@ -40,7 +40,7 @@ function App() {
       </main>
       
       <footer className="footer">
-        <p>PWA приложение • Работает оффлайн • Использует Teachable Machine</p>
+        <p>PWA приложение • Оффлайн после первой загрузки • Использует Teachable Machine</p>
         <p className="version">Версия 1.0.0</p>
       </footer>
     </div>

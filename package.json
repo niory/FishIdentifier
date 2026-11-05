@@ -12,7 +12,11 @@
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "postbuild": "node scripts/build-service-worker.cjs",
+        "test:e2e": "playwright test",
+        "test:photos": "node scripts/evaluate-photos.cjs",
+        "preview": "node scripts/serve-build.cjs"
     },
     "eslintConfig": {
         "extends": [
@@ -31,5 +35,10 @@
             "last 1 safari version"
         ]
     },
-    "homepage": "./"
+    "homepage": "./",
+    "devDependencies": {
+        "@playwright/test": "^1.64.1",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.3"
+    }
 }
